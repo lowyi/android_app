@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ClickNShip"
+rootProject.name = "clickNship"
 include(":app")
