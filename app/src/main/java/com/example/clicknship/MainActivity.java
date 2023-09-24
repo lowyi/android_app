@@ -68,13 +68,19 @@ public class MainActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener () {
             @Override
             public void onClick(View view) {
-                //sha256 hash for password
-                getSha256Hash(Password.getText().toString());
                 //Need to append password hash to the end of URL then get the respond
                 String url = "https://jsonplaceholder.typicode.com/todos/1";
+                JSONObject jsonParams = new JSONObject();
+                try {
+                    jsonParams.put("username", username.getText().toString());
+                    //sha256 hash for password
+                    jsonParams.put("password", getSha256Hash(Password.getText().toString()));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                        (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
 
                             @Override
                             public void onResponse(JSONObject response) {
