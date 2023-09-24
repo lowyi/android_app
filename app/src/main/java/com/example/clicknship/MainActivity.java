@@ -3,6 +3,7 @@ package com.example.clicknship;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.accounts.AccountManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener () {
             @Override
             public void onClick(View view) {
-                //Need to append password hash to the end of URL then get the respond
+                //To authenticate with username and password
                 String url = "https://jsonplaceholder.typicode.com/todos/1";
                 JSONObject jsonParams = new JSONObject();
                 try {
@@ -93,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
 
                                     if (Result.equals("OK")) {
                                         Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
+                                        //To switch to second view(page) catalog
+                                        Intent intent = new Intent(getApplicationContext(),Catalog.class);
+                                        startActivity(intent);
 
                                     }
                                 } catch (JSONException e) {
