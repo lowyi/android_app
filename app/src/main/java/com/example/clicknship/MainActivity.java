@@ -2,12 +2,7 @@ package com.example.clicknship;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -38,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
 
         AccountManager am = AccountManager.get(this);
         RequestQueue queue = Volley.newRequestQueue(this);
-        Bundle options = new Bundle();
 
         TextView username =  findViewById(R.id.username);
         TextView Password =  findViewById(R.id.password);
@@ -51,16 +45,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
 
-                Account[] accounts = am.getAccountsByType("com.google");
+                tokenRequest tokenRequest = new tokenRequest(Request.Method.POST, "https://authorization-server.com/authorize", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
 
-//                am.getAuthToken(
-//                        account,                     // Account retrieved using getAccountsByType()
-//                        "Manage your tasks",            // Auth scope
-//                        options,                        // Authenticator-specific options
-//                        this,                           // Your activity
-//                        new OnTokenAcquired(),          // Callback called when a token is successfully acquired
-//                        new Handler(new OnError()));    // Callback called if an error occurs
 
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error.networkResponse.statusCode == 401) {
+                            //refreshAccessToken();
+                        } else {
+                            // irrecoverable errors. show error to user.
+                            Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                queue.add(tokenRequest);
             }
         });
 
@@ -92,8 +94,6 @@ public class MainActivity extends AppCompatActivity {
                                     if (Result.equals("OK")) {
                                         Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
 
-                                        final Account account = new Account(username.getText().toString(), "login");
-                                        am.addAccountExplicitly(account, Password.getText().toString(), null);
                                     }
                                 } catch (JSONException e) {
                                     Toast.makeText(MainActivity.this, "error:" + e, Toast.LENGTH_SHORT).show();
@@ -133,28 +133,5 @@ public class MainActivity extends AppCompatActivity {
         for (byte b : data)
             hex.append(String.format("%02x", b & 0xFF));
         return hex.toString();
-    }
-
-    private class OnTokenAcquired implements AccountManagerCallback<Bundle> {
-        @Override
-        public void run(AccountManagerFuture<Bundle> result) {
-            // Get the result of the operation from the AccountManagerFuture.
-            Bundle bundle = null;
-            try {
-                bundle = result.getResult();
-
-            } catch (AuthenticatorException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (OperationCanceledException e) {
-                throw new RuntimeException(e);
-            }
-
-            // The token is a named value in the bundle. The name of the value
-            // is stored in the constant AccountManager.KEY_AUTHTOKEN.
-            String token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-
-        }
     }
 }
