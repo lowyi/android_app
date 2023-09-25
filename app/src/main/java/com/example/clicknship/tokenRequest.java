@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class tokenRequest extends StringRequest {
-    private static final String CLIENT_ID = "Tj5vubajGQlfS7FhXeboS9e1";
-    private static final String CLIENT_SECRET = "F8_c2yhhQudh4eGv1IrnAeZliDqVG9b4dWHrNvTVm5EE54Zc";
+    private static final String CLIENT_ID = "client-app";
+    private static final String CLIENT_SECRET = "123456";
 
     public tokenRequest(int method, String url, Response.Listener<String> listener,
                         Response.ErrorListener errorListener) {
@@ -22,7 +22,7 @@ public class tokenRequest extends StringRequest {
     @Override
     protected Map<String, String> getParams() throws AuthFailureError {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("grant_type", "client_credentials");
+        params.put("grant_type", "password");
         return params;
     }
 

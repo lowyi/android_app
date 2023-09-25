@@ -1,8 +1,10 @@
 package com.example.clicknship;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.accounts.AccountManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +34,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        RootBeer rootBeer = new RootBeer(this);
+        if (rootBeer.isRooted()) {
+            //we found indication of root
+            new AlertDialog.Builder(this)
+                    .setTitle("Phone Is Rooted")
+                    .setMessage("Your device has been rooted. To protect your data safety, you are not allowed to use this app.")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            finishAffinity();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
 
         AccountManager am = AccountManager.get(this);
         RequestQueue queue = Volley.newRequestQueue(this);
