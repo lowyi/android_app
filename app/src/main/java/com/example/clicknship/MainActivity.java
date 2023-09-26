@@ -19,14 +19,22 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.clicknship.dto.Iuserlogin;
 import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView username =  findViewById(R.id.username);
         TextView Password =  findViewById(R.id.password);
+        TextView otp =  findViewById(R.id.otp);
         ImageView ShopBtn =  findViewById(R.id.ShopBtn);
         Button loginBtn =  findViewById(R.id.loginbtn);
 
@@ -92,12 +101,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //To authenticate with username and password
-                String url = "https://jsonplaceholder.typicode.com/todos/1";
+                //String url = "https://jsonplaceholder.typicode.com/todos/1";
+                String url = "http://34.30.227.181:4200/api/authenticationService/securityUser/login";
+                Iuserlogin login =  new Iuserlogin();
+                login.setUsername(username.getText().toString());
+                try {
+                    login.setPassword(AESencryption(Password.getText().toString()));
+                    login.setOtp(AESencryption(otp.getText().toString()));
+                } catch (InvalidKeyException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalBlockSizeException e) {
+                    throw new RuntimeException(e);
+                } catch (BadPaddingException e) {
+                    throw new RuntimeException(e);
+                } catch (NoSuchPaddingException e) {
+                    throw new RuntimeException(e);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                }
+
                 JSONObject jsonParams = new JSONObject();
                 try {
-                    jsonParams.put("username", username.getText().toString());
-                    //sha256 hash for password
-                    jsonParams.put("password", getSha256Hash(Password.getText().toString()));
+                    jsonParams.put("userlogin", login);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -127,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(MainActivity.this, "login unsuccessful", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
                             }
                         });
                 queue.add(jsonObjectRequest);
@@ -137,19 +162,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static String getSha256Hash(String password) {
-        try {
-            MessageDigest digest = null;
-            try {
-                digest = MessageDigest.getInstance("SHA-256");
-            } catch (NoSuchAlgorithmException e1) {
-                e1.printStackTrace();
-            }
-            digest.reset();
-            return bin2hex(digest.digest(password.getBytes()));
-        } catch (Exception ignored) {
-            return null;
-        }
+    public static String AESencryption( String txt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, NoSuchAlgorithmException {
+        byte[] plaintext = txt.getBytes();
+        KeyGenerator keygen = KeyGenerator.getInstance("AES");
+        keygen.init(256);
+        SecretKey key = keygen.generateKey();
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] ciphertext = cipher.doFinal(plaintext);
+        byte[] iv = cipher.getIV();
+        return  bin2hex(ciphertext);
     }
 
     private static String bin2hex(byte[] data) {
