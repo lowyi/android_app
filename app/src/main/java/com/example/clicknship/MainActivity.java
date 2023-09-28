@@ -19,14 +19,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.clicknship.dto.Iuserlogin;
+import com.clicknship.dto.tokenlogin;
 import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.BadPaddingException;
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         }
 
-        AccountManager am = AccountManager.get(this);
+        Preferences pre = new Preferences();
         RequestQueue queue = Volley.newRequestQueue(this);
 
         TextView username =  findViewById(R.id.username);
@@ -73,26 +72,24 @@ public class MainActivity extends AppCompatActivity {
         ShopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
-
-                tokenRequest tokenRequest = new tokenRequest(Request.Method.POST, "https://authorization-server.com/authorize", new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        if (error.networkResponse.statusCode == 401) {
-                            //refreshAccessToken();
-                        } else {
-                            // irrecoverable errors. show error to user.
-                            Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                queue.add(tokenRequest);
+//                tokenRequest tokenRequest = new tokenRequest(Request.Method.POST, "https://authorization-server.com/authorize", new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//
+//
+//                    }
+//                }, new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        if (error.networkResponse.statusCode == 401) {
+//                            //refreshAccessToken();
+//                        } else {
+//                            // irrecoverable errors. show error to user.
+//                            Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
+//                queue.add(tokenRequest);
             }
         });
 
@@ -101,13 +98,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //To authenticate with username and password
-                //String url = "https://jsonplaceholder.typicode.com/todos/1";
-                String url = "http://34.30.227.181:4200/api/authenticationService/securityUser/login";
-                Iuserlogin login =  new Iuserlogin();
-                login.setUsername(username.getText().toString());
+                String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
+                tokenlogin tokenlog =  new tokenlogin();
+                tokenlog.setUsername(username.getText().toString());
                 try {
-                    login.setPassword(AESencryption(Password.getText().toString()));
-                    login.setOtp(AESencryption(otp.getText().toString()));
+                    tokenlog.setPassword(AESencryption(Password.getText().toString()));
+                    tokenlog.setOtp(AESencryption(otp.getText().toString()));
                 } catch (InvalidKeyException e) {
                     throw new RuntimeException(e);
                 } catch (IllegalBlockSizeException e) {
@@ -122,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject jsonParams = new JSONObject();
                 try {
-                    jsonParams.put("userlogin", login);
+                    jsonParams.put("userlogin", tokenlog);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -135,10 +131,13 @@ public class MainActivity extends AppCompatActivity {
 
                                 try {
                                     //int userID = response.getInt("userId");
-                                    String Result = response.getString("title");
+                                    String token = response.getString("token");
+                                    String refreshToken = response.getString("refresh_token");
 
-                                    if (Result.equals("OK")) {
+                                    if (response.equals("OK")) {
                                         Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
+                                        //STORED TOKEN INTO PREFERENCES
+                                        pre.setAccessToken(MainActivity.this,token,refreshToken);
                                         //To switch to second view(page) catalog
                                         Intent intent = new Intent(getApplicationContext(),Catalog.class);
                                         startActivity(intent);
@@ -153,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
+                                if (error.networkResponse.statusCode == 401) {
+                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this));
+                                } else {
+                                    // irrecoverable errors. show error to user.
+                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                 queue.add(jsonObjectRequest);
@@ -179,5 +184,50 @@ public class MainActivity extends AppCompatActivity {
         for (byte b : data)
             hex.append(String.format("%02x", b & 0xFF));
         return hex.toString();
+    }
+
+    private void refreshAccessToken(String  refreshToken) {
+        Preferences pre = new Preferences();
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+
+        //refresh token server
+        String url = "http://34.30.227.181:4200/ ";
+
+        JSONObject jsonParams = new JSONObject();
+        try {
+            jsonParams.put("refresh_token", refreshToken);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            //int userID = response.getInt("userId");
+                            String token = response.getString("token");
+                            String refreshToken = response.getString("refresh_token");
+
+                            Toast.makeText(MainActivity.this, "refresh_token successful", Toast.LENGTH_SHORT).show();
+                            //STORED TOKEN INTO PREFERENCES
+                            pre.setAccessToken(MainActivity.this,token,refreshToken);
+
+                        } catch (JSONException e) {
+                            Toast.makeText(MainActivity.this, "error:" + e, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        queue.add(jsonObjectRequest);
     }
 }
