@@ -7,17 +7,20 @@ import android.accounts.AccountManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.clicknship.dto.tokenlogin;
 import com.scottyab.rootbeer.RootBeer;
@@ -27,6 +30,8 @@ import org.json.JSONObject;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -36,6 +41,9 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String CLIENT_ID = "client-app";
+    private static final String CLIENT_SECRET = "123456";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +80,51 @@ public class MainActivity extends AppCompatActivity {
         ShopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String url = "https://authorization-server.com/authorize";
+
+                StringRequest getRequest = new StringRequest(Request.Method.GET, url,
+                        new Response.Listener<String>()
+                        {
+                            @Override
+                            public void onResponse(String response) {
+                                // response
+                                Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
+                                //To switch to second view(page) catalog
+                                Intent intent = new Intent(getApplicationContext(),Catalog.class);
+                                startActivity(intent);
+                            }
+                        },
+                        new Response.ErrorListener()
+                        {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO Auto-generated method stub
+                                Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
+//                                if (error.networkResponse.statusCode == 401) {
+//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this));
+//                                } else {
+//                                    // irrecoverable errors. show error to user.
+//                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+//                                }
+                            }
+                        }
+                ) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  headers = new HashMap<String, String>();
+//                        String auth = "Basic "
+//                                + Base64.encodeToString((CLIENT_ID
+//                                        + ":" + CLIENT_SECRET).getBytes(),
+//                                Base64.NO_WRAP);
+                        String Bearer = "Bearer " +  pre.getAccessToken(MainActivity.this);
+                        headers.put("Authorization", Bearer);
+
+                        return headers;
+                    }
+                };
+
+                queue.add(getRequest);
+
 //                tokenRequest tokenRequest = new tokenRequest(Request.Method.POST, "https://authorization-server.com/authorize", new Response.Listener<String>() {
 //                    @Override
 //                    public void onResponse(String response) {
@@ -152,14 +205,28 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
-                                if (error.networkResponse.statusCode == 401) {
-                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this));
-                                } else {
-                                    // irrecoverable errors. show error to user.
-                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
+//                                if (error.networkResponse.statusCode == 401) {
+//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this));
+//                                } else {
+//                                    // irrecoverable errors. show error to user.
+//                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+//                                }
                             }
-                        });
+                        }){
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String>  headers = new HashMap<String, String>();
+                                String auth = "Basic "
+                                        + Base64.encodeToString((CLIENT_ID
+                                                + ":" + CLIENT_SECRET).getBytes(),
+                                        Base64.NO_WRAP);
+                                //String Bearer = "Bearer " +  pre.getAccessToken(MainActivity.this);
+                                headers.put("Authorization", auth);
+
+                                return headers;
+                            }
+                        };
+
                 queue.add(jsonObjectRequest);
 
             }
