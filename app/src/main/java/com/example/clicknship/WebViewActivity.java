@@ -17,8 +17,12 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
         clickNShipView = (WebView) findViewById(R.id.webview);
+        final String searchURL = "https://www.amazon.com/s/?field-keywords=";
+        // Here is I make transparent background for WebView
+        clickNShipView.setBackgroundColor(0x00000000);
+
         clickNShipView.setWebViewClient(new WebViewClient());
-        clickNShipView.loadUrl("http://10.0.2.2:4200/catalogue");
+        //clickNShipView.loadUrl("http://10.0.2.2:4200/catalogue");
 
         WebSettings webSettings = clickNShipView.getSettings();
         webSettings.setJavaScriptEnabled(true);
