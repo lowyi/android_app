@@ -90,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
                                 // response
                                 Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
                                 //To switch to second view(page) catalog
-                                Intent intent = new Intent(getApplicationContext(),Catalog.class);
-                                startActivity(intent);
+							    Intent i = new Intent(MainActivity.this, WebViewActivity.class);
+								startActivity(i);
                             }
                         },
                         new Response.ErrorListener()
