@@ -3,7 +3,6 @@ package com.example.clicknship;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.accounts.AccountManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -90,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
                                 // response
                                 Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
                                 //To switch to second view(page) catalog
-							    Intent i = new Intent(MainActivity.this, WebViewActivity.class);
-								startActivity(i);
+                                Intent intent = new Intent(MainActivity.this,Catalog.class);
+                                startActivity(intent);
                             }
                         },
                         new Response.ErrorListener()
@@ -176,6 +175,9 @@ public class MainActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
 
+                //Intent intent = new Intent(MainActivity.this,Catalog.class);
+                //startActivity(intent);
+
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                         (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
 
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                                         //STORED TOKEN INTO PREFERENCES
                                         pre.setAccessToken(MainActivity.this,token,refreshToken);
                                         //To switch to second view(page) catalog
-                                        Intent intent = new Intent(getApplicationContext(),Catalog.class);
+                                        Intent intent = new Intent(MainActivity.this,Catalog.class);
                                         startActivity(intent);
 
                                     }
