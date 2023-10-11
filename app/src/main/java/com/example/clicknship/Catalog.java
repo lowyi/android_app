@@ -1,7 +1,9 @@
 package com.example.clicknship;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -31,16 +33,104 @@ public class Catalog extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Catalog.setWebViewClient(new WebViewClient());
-                Catalog.loadUrl(searchURL + item.getText().toString());
+                if (!searchURL.startsWith("file://")) {
+                    if (!searchURL.startsWith("javascript://")) {
+                        if (!searchURL.startsWith("content://")) {
+                            Catalog.loadUrl(searchURL + item.getText().toString());
+                        }else{
+                            new AlertDialog.Builder(Catalog.this)
+                                    .setTitle("Illegal Website Access")
+                                    .setMessage("You Have Access An Illegal website To protect your data safety, you are not allowed to use this app.")
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
 
+                                            finishAffinity();
+                                        }
+                                    })
+                                    .setCancelable(false)
+                                    .show();
+                        }
+                    }else{
+                        new AlertDialog.Builder(Catalog.this)
+                                .setTitle("Illegal Website Access")
+                                .setMessage("You Have Access An Illegal website To protect your data safety, you are not allowed to use this app.")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        finishAffinity();
+                                    }
+                                })
+                                .setCancelable(false)
+                                .show();
+                    }
+                }else{
+                    new AlertDialog.Builder(Catalog.this)
+                            .setTitle("Illegal Website Access")
+                            .setMessage("You Have Access An Illegal website To protect your data safety, you are not allowed to use this app.")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                    finishAffinity();
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+                }
                 WebSettings webSettings = Catalog.getSettings();
-                webSettings.setJavaScriptEnabled(true);
                 webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
             }
         });
 
         Catalog.setWebViewClient(new WebViewClient());
-        Catalog.loadUrl(searchURL);
+        if (!searchURL.startsWith("file://")) {
+            if (!searchURL.startsWith("javascript://")) {
+                if (!searchURL.startsWith("content://")) {
+                    Catalog.loadUrl(searchURL);
+                }else{
+                    new AlertDialog.Builder(Catalog.this)
+                            .setTitle("Illegal Website Access")
+                            .setMessage("You Have Access An Illegal website To protect your data safety, you are not allowed to use this app.")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                    finishAffinity();
+                                }
+                            })
+                            .setCancelable(false)
+                            .show();
+                }
+            }else{
+                new AlertDialog.Builder(Catalog.this)
+                        .setTitle("Illegal Website Access")
+                        .setMessage("You Have Access An Illegal website To protect your data safety, you are not allowed to use this app.")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                finishAffinity();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
+        }else{
+            new AlertDialog.Builder(Catalog.this)
+                    .setTitle("Illegal Website Access")
+                    .setMessage("You Have Access An Illegal website To protect your data safety, you are not allowed to use this app.")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            finishAffinity();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
 
         WebSettings webSettings = Catalog.getSettings();
         webSettings.setJavaScriptEnabled(true);
