@@ -133,7 +133,6 @@ public class Catalog extends AppCompatActivity {
         }
 
         WebSettings webSettings = Catalog.getSettings();
-        webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
     }
 
