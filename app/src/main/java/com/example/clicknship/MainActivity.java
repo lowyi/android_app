@@ -175,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
 
-                Intent intent = new Intent(MainActivity.this,Catalog.class);
-                startActivity(intent);
+                //Intent intent = new Intent(MainActivity.this,Catalog.class);
+                //startActivity(intent);
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                         (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
