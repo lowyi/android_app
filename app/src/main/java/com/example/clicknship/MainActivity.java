@@ -39,6 +39,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "client-app";
@@ -153,20 +155,8 @@ public class MainActivity extends AppCompatActivity {
                 String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
                 tokenlogin tokenlog =  new tokenlogin();
                 tokenlog.setUsername(username.getText().toString());
-                try {
-                    tokenlog.setPassword(AESencryption(Password.getText().toString()));
-                    tokenlog.setOtp(AESencryption(otp.getText().toString()));
-                } catch (InvalidKeyException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalBlockSizeException e) {
-                    throw new RuntimeException(e);
-                } catch (BadPaddingException e) {
-                    throw new RuntimeException(e);
-                } catch (NoSuchPaddingException e) {
-                    throw new RuntimeException(e);
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
-                }
+                tokenlog.setPassword(BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
+                tokenlog.setOtp(BCrypt.withDefaults().hashToString(10, otp.getText().toString().toCharArray()));
 
                 JSONObject jsonParams = new JSONObject();
                 try {
@@ -234,25 +224,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    public static String AESencryption( String txt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException, NoSuchAlgorithmException {
-        byte[] plaintext = txt.getBytes();
-        KeyGenerator keygen = KeyGenerator.getInstance("AES");
-        keygen.init(256);
-        SecretKey key = keygen.generateKey();
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] ciphertext = cipher.doFinal(plaintext);
-        byte[] iv = cipher.getIV();
-        return  bin2hex(ciphertext);
-    }
-
-    private static String bin2hex(byte[] data) {
-        StringBuilder hex = new StringBuilder(data.length * 2);
-        for (byte b : data)
-            hex.append(String.format("%02x", b & 0xFF));
-        return hex.toString();
     }
 
     private void refreshAccessToken(String  refreshToken) {
