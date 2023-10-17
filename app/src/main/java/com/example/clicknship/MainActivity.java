@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 // TODO Auto-generated method stub
                                 Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
-//                                if (error.networkResponse.statusCode == 401) {
+//                                if (error.networkResponse.statusCode == 'A103') {
 //                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
 //                                } else {
 //                                    // irrecoverable errors. show error to user.
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
-//                                if (error.networkResponse.statusCode == 401) {
+//                                if (error.networkResponse.statusCode == 'A103') {
 //                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
 //                                } else {
 //                                    // irrecoverable errors. show error to user.
