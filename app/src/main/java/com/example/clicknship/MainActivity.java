@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                                 // TODO Auto-generated method stub
                                 Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
 //                                if (error.networkResponse.statusCode == 401) {
-//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this));
+//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
 //                                } else {
 //                                    // irrecoverable errors. show error to user.
 //                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
 //                                if (error.networkResponse.statusCode == 401) {
-//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this));
+//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
 //                                } else {
 //                                    // irrecoverable errors. show error to user.
 //                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void refreshAccessToken(String  refreshToken) {
+    private void refreshAccessToken(String  refreshToken, String username) {
         Preferences pre = new Preferences();
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
 
@@ -236,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
         JSONObject jsonParams = new JSONObject();
         try {
             jsonParams.put("refresh_token", refreshToken);
+            jsonParams.put("username", username);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
