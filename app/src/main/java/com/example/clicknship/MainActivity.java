@@ -21,7 +21,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.clicknship.dto.tokenlogin;
 import com.scottyab.rootbeer.RootBeer;
 
 import org.json.JSONException;
@@ -125,25 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 };
 
                 queue.add(getRequest);
-
-//                tokenRequest tokenRequest = new tokenRequest(Request.Method.POST, "https://authorization-server.com/authorize", new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//
-//
-//                    }
-//                }, new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        if (error.networkResponse.statusCode == 401) {
-//                            //refreshAccessToken();
-//                        } else {
-//                            // irrecoverable errors. show error to user.
-//                            Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
-//                queue.add(tokenRequest);
             }
         });
 
@@ -153,14 +133,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //To authenticate with username and password
                 String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
-                tokenlogin tokenlog =  new tokenlogin();
-                tokenlog.setUsername(username.getText().toString());
-                tokenlog.setPassword(BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
-                tokenlog.setOtp(BCrypt.withDefaults().hashToString(10, otp.getText().toString().toCharArray()));
+                //String url = "http://localhost:8761/api/authenticationService/oauth/token";
 
                 JSONObject jsonParams = new JSONObject();
                 try {
-                    jsonParams.put("userlogin", tokenlog);
+                    jsonParams.put("grant_type", "password");
+                    jsonParams.put("client_id", CLIENT_ID);
+                    jsonParams.put("client_secret", CLIENT_SECRET);
+                    jsonParams.put("username", username.getText().toString());
+                    jsonParams.put("password", BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
+                    //jsonParams.put("otp", BCrypt.withDefaults().hashToString(10, otp.getText().toString().toCharArray()));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -204,21 +186,20 @@ public class MainActivity extends AppCompatActivity {
 //                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
 //                                }
                             }
-                        }){
-                            @Override
-                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                Map<String, String>  headers = new HashMap<String, String>();
-                                String auth = "Basic "
-                                        + Base64.encodeToString((CLIENT_ID
-                                                + ":" + CLIENT_SECRET).getBytes(),
-                                        Base64.NO_WRAP);
-                                //String Bearer = "Bearer " +  pre.getAccessToken(MainActivity.this);
-                                headers.put("Authorization", auth);
-
-                                return headers;
-                            }
-                        };
-
+                        });//{
+//                            @Override
+//                            public Map<String, String> getHeaders() throws AuthFailureError {
+//                                Map<String, String>  headers = new HashMap<String, String>();
+//                                String auth = "Basic "
+//                                        + Base64.encodeToString((CLIENT_ID
+//                                                + ":" + CLIENT_SECRET).getBytes(),
+//                                        Base64.NO_WRAP);
+//                                //String Bearer = "Bearer " +  pre.getAccessToken(MainActivity.this);
+//                                headers.put("Authorization", auth);
+//
+//                                return headers;
+//                            }
+//                        };
                 queue.add(jsonObjectRequest);
 
             }
@@ -231,12 +212,14 @@ public class MainActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
 
         //refresh token server
-        String url = "http://34.30.227.181:4200/ ";
+        String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
 
         JSONObject jsonParams = new JSONObject();
         try {
             jsonParams.put("refresh_token", refreshToken);
             jsonParams.put("username", username);
+            jsonParams.put("client_id", CLIENT_ID);
+            jsonParams.put("client_secret", CLIENT_SECRET);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -249,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             //int userID = response.getInt("userId");
-                            String token = response.getString("token");
+                            String token = response.getString("access_token");
                             String refreshToken = response.getString("refresh_token");
 
                             Toast.makeText(MainActivity.this, "refresh_token successful", Toast.LENGTH_SHORT).show();
