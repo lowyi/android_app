@@ -132,8 +132,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //To authenticate with username and password
-                String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
-                //String url = "http://localhost:8761/api/authenticationService/oauth/token";
+                //String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
+                String url = "http://10.0.2.2:8761/api/authenticationService/oauth/token";
 
                 JSONObject jsonParams = new JSONObject();
                 try {
@@ -142,13 +142,10 @@ public class MainActivity extends AppCompatActivity {
                     jsonParams.put("client_secret", CLIENT_SECRET);
                     jsonParams.put("username", username.getText().toString());
                     jsonParams.put("password", BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
-                    //jsonParams.put("otp", BCrypt.withDefaults().hashToString(10, otp.getText().toString().toCharArray()));
+                    jsonParams.put("otp", otp.getText().toString());
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
-
-                //Intent intent = new Intent(MainActivity.this,Catalog.class);
-                //startActivity(intent);
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                         (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
