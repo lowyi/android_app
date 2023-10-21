@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //To authenticate with username and password
                 //String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
-                String url = "http://10.0.2.2:8761/api/authenticationService/oauth/token";
+                String url = "http://10.0.2.2:4200/api/authenticationService/oauth/token";
 
                 JSONObject jsonParams = new JSONObject();
                 try {
