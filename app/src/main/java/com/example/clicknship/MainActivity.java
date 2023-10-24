@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,17 +25,8 @@ import com.scottyab.rootbeer.RootBeer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
@@ -133,49 +123,25 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //To authenticate with username and password
                 //String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
-                String url = "http://10.0.2.2:4200/api/authenticationService/oauth/token";
+                String url = "http://192.168.1.71:8770/api/authenticationService/oauth/token";
 
-                JSONObject jsonParams = new JSONObject();
-                try {
-                    jsonParams.put("grant_type", "password");
-                    jsonParams.put("client_id", CLIENT_ID);
-                    jsonParams.put("client_secret", CLIENT_SECRET);
-                    jsonParams.put("username", username.getText().toString());
-                    jsonParams.put("password", BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
-                    jsonParams.put("otp", otp.getText().toString());
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                        (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
-
+                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                        new Response.Listener<String>()
+                        {
                             @Override
-                            public void onResponse(JSONObject response) {
-
-                                try {
-                                    //int userID = response.getInt("userId");
-                                    String token = response.getString("token");
-                                    String refreshToken = response.getString("refresh_token");
-
-                                    if (response.equals("OK")) {
-                                        Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
-                                        //STORED TOKEN INTO PREFERENCES
-                                        pre.setAccessToken(MainActivity.this,token,refreshToken);
-                                        //To switch to second view(page) catalog
-                                        Intent intent = new Intent(MainActivity.this,Catalog.class);
-                                        startActivity(intent);
-
-                                    }
-                                } catch (JSONException e) {
-                                    Toast.makeText(MainActivity.this, "error:" + e, Toast.LENGTH_SHORT).show();
-                                }
+                            public void onResponse(String response) {
+                                // response
+                                Toast.makeText(MainActivity.this, "login successful" + response, Toast.LENGTH_SHORT).show();
+                                //To switch to second view(page) catalog
+                                Intent intent = new Intent(MainActivity.this,Catalog.class);
+                                startActivity(intent);
                             }
-                        }, new Response.ErrorListener() {
-
+                        },
+                        new Response.ErrorListener()
+                        {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "login unsuccessful" + error.networkResponse.statusCode, Toast.LENGTH_SHORT).show();
 //                                if (error.networkResponse.statusCode == 'A103') {
 //                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
 //                                } else {
@@ -183,22 +149,28 @@ public class MainActivity extends AppCompatActivity {
 //                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
 //                                }
                             }
-                        });//{
-//                            @Override
-//                            public Map<String, String> getHeaders() throws AuthFailureError {
-//                                Map<String, String>  headers = new HashMap<String, String>();
-//                                String auth = "Basic "
-//                                        + Base64.encodeToString((CLIENT_ID
-//                                                + ":" + CLIENT_SECRET).getBytes(),
-//                                        Base64.NO_WRAP);
-//                                //String Bearer = "Bearer " +  pre.getAccessToken(MainActivity.this);
-//                                headers.put("Authorization", auth);
-//
-//                                return headers;
-//                            }
-//                        };
-                queue.add(jsonObjectRequest);
+                        }
+                ) {
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/x-www-form-urlencoded; charset=UTF-8";
+                    }
 
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("grant_type", "password");
+                        params.put("client_id", CLIENT_ID);
+                        params.put("client_secret", CLIENT_SECRET);
+                        params.put("username", username.getText().toString());
+                        params.put("password", BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
+                        params.put("otp", BCrypt.withDefaults().hashToString(10, otp.getText().toString().toCharArray()));
+
+                        return params;
+                    }
+                };
+
+                queue.add(postRequest);
             }
         });
 
