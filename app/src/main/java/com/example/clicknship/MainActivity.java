@@ -1,5 +1,7 @@
 package com.example.clicknship;
 
+import static com.example.clicknship.PasswordUtil.encryptStrAndToBase64;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,8 +29,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import at.favre.lib.crypto.bcrypt.BCrypt;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -125,23 +125,28 @@ public class MainActivity extends AppCompatActivity {
                 //String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
                 String url = "http://192.168.1.71:8770/api/authenticationService/oauth/token";
 
+
                 StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>()
                         {
                             @Override
                             public void onResponse(String response) {
                                 // response
-                                Toast.makeText(MainActivity.this, "login successful" + response, Toast.LENGTH_SHORT).show();
-                                //To switch to second view(page) catalog
-                                Intent intent = new Intent(MainActivity.this,Catalog.class);
-                                startActivity(intent);
+                                String jsonStr = response;
+                                try {
+                                    Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
+                                    JSONObject obj = new JSONObject(jsonStr);
+                                    pre.setAccessToken(MainActivity.this,obj.getString("token"), obj.getString("refreshToken"));
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
                             }
                         },
                         new Response.ErrorListener()
                         {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(MainActivity.this, "login unsuccessful" + error.networkResponse.statusCode, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
 //                                if (error.networkResponse.statusCode == 'A103') {
 //                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
 //                                } else {
@@ -162,9 +167,18 @@ public class MainActivity extends AppCompatActivity {
                         params.put("grant_type", "password");
                         params.put("client_id", CLIENT_ID);
                         params.put("client_secret", CLIENT_SECRET);
-                        params.put("username", username.getText().toString());
-                        params.put("password", BCrypt.withDefaults().hashToString(10, Password.getText().toString().toCharArray()));
-                        params.put("otp", BCrypt.withDefaults().hashToString(10, otp.getText().toString().toCharArray()));
+                        params.put("username", username.getText().toString().trim());
+                        try {
+                            //params.put("password",  encryptStrAndToBase64("Z28yc2hvcFNlY3JldEtleQ==", Password.getText().toString()));
+                            params.put("password","BoKxn6eLtxE53lh/8Sb4CA==");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        try {
+                            params.put("otp", encryptStrAndToBase64("Z28yc2hvcFNlY3JldEtleQ==", otp.getText().toString()));
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
 
                         return params;
                     }
