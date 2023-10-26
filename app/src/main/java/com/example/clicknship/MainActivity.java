@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 //String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
                 String url = "http://192.168.1.71:8770/api/authenticationService/oauth/token";
 
-
                 StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>()
                         {
@@ -140,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (JSONException e) {
                                     throw new RuntimeException(e);
                                 }
+
+                                Intent intent = new Intent(MainActivity.this,Catalog.class);
+                                startActivity(intent);
                             }
                         },
                         new Response.ErrorListener()
@@ -190,51 +192,71 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void refreshAccessToken(String  refreshToken, String username) {
+    private void refreshAccessToken(String  Token, String username) {
+        String url = "http://192.168.1.71:8770/api/authenticationService/oauth/token";
         Preferences pre = new Preferences();
-        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-        //refresh token server
-        String url = "http://34.30.227.181:4200/api/authenticationService/oauth/token";
-
-        JSONObject jsonParams = new JSONObject();
-        try {
-            jsonParams.put("refresh_token", refreshToken);
-            jsonParams.put("username", username);
-            jsonParams.put("client_id", CLIENT_ID);
-            jsonParams.put("client_secret", CLIENT_SECRET);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, url, jsonParams, new Response.Listener<JSONObject>() {
-
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>()
+                {
                     @Override
-                    public void onResponse(JSONObject response) {
-
+                    public void onResponse(String response) {
+                        // response
+                        String jsonStr = response;
                         try {
-                            //int userID = response.getInt("userId");
-                            String token = response.getString("access_token");
-                            String refreshToken = response.getString("refresh_token");
-
-                            Toast.makeText(MainActivity.this, "refresh_token successful", Toast.LENGTH_SHORT).show();
-                            //STORED TOKEN INTO PREFERENCES
-                            pre.setAccessToken(MainActivity.this,token,refreshToken);
-
+                            Toast.makeText(MainActivity.this, "login successful", Toast.LENGTH_SHORT).show();
+                            JSONObject obj = new JSONObject(jsonStr);
+                            pre.setAccessToken(MainActivity.this,obj.getString("token"), obj.getString("refreshToken"));
+                            Toast.makeText(MainActivity.this, "token:" + obj.getString("token"), Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
-                            Toast.makeText(MainActivity.this, "error:" + e, Toast.LENGTH_SHORT).show();
+                            throw new RuntimeException(e);
                         }
                     }
-                }, new Response.ErrorListener() {
-
+                },
+                new Response.ErrorListener()
+                {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
-                        Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(MainActivity.this, "login unsuccessful" + error, Toast.LENGTH_SHORT).show();
+//                                if (error.networkResponse.statusCode == 'A103') {
+//                                    refreshAccessToken(pre.getRefreshToken(MainActivity.this),username.getText().toString());
+//                                } else {
+//                                    // irrecoverable errors. show error to user.
+//                                    Toast.makeText(MainActivity.this, "onErrorResponse:token request "+ error.getMessage(), Toast.LENGTH_SHORT).show();
+//                                }
                     }
-                });
-        queue.add(jsonObjectRequest);
+                }
+        ) {
+            @Override
+            public String getBodyContentType() {
+                return "application/x-www-form-urlencoded; charset=UTF-8";
+            }
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("grant_type", "refresh_token");
+                params.put("client_id", CLIENT_ID);
+                params.put("client_secret", CLIENT_SECRET);
+                params.put("username", username.trim());
+                params.put("token", Token);
+//                try {
+//                    //params.put("password",  encryptStrAndToBase64("Z28yc2hvcFNlY3JldEtleQ==", Password.getText().toString()));
+//                    params.put("password","BoKxn6eLtxE53lh/8Sb4CA==");
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+//                try {
+//                    params.put("otp", encryptStrAndToBase64("Z28yc2hvcFNlY3JldEtleQ==", otp.getText().toString()));
+//                } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                }
+
+                return params;
+            }
+        };
+
+        queue.add(postRequest);
     }
 }
