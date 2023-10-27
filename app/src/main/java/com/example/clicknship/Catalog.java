@@ -12,7 +12,9 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +26,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,18 +46,16 @@ public class Catalog extends AppCompatActivity {
 
         Button searchBtn = findViewById(R.id.searchB);
         TextView item =  findViewById(R.id.search);
+        ListView productList = findViewById(R.id.productListView);
 
-        Catalog = (WebView) findViewById(R.id.webview);
         final String searchURL = "http://192.168.1.71:8770/api/catalogueService/catalogue/catalogue/search?page=0&size=100";
-        // Here is I make transparent background for WebView
-        Catalog.setBackgroundColor(0x00000000);
         RequestQueue queue = Volley.newRequestQueue(this);
         JSONObject jsonBody = new JSONObject();
 
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Catalog.setWebViewClient(new WebViewClient());
+
                 if (!searchURL.startsWith("file://")) {
                     if (!searchURL.startsWith("javascript://")) {
                         if (!searchURL.startsWith("content://")) {
@@ -65,7 +67,21 @@ public class Catalog extends AppCompatActivity {
                                         public void onResponse(String response) {
                                             // response
                                             String jsonStr = response;
-                                            Toast.makeText(Catalog.this, "Catalog retrieve successful" + response, Toast.LENGTH_SHORT).show();
+                                            try {
+                                                JSONArray objArray = new JSONArray(jsonStr);
+                                                ArrayList<String> itemList = new ArrayList<>();
+                                                for (int i = 0; i < objArray.length(); i++) {
+                                                    JSONObject row = objArray.getJSONObject(i);
+                                                    itemList.add(row.getString("name"));
+                                                }
+
+                                                ArrayAdapter arrayAdapter = new ArrayAdapter(Catalog.this, android.R.layout.simple_list_item_1, itemList);
+                                                productList.setAdapter(arrayAdapter);
+
+                                            } catch (JSONException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                            Toast.makeText(Catalog.this, "Result return successful", Toast.LENGTH_SHORT).show();
 
                                         }
                                     },
@@ -73,7 +89,7 @@ public class Catalog extends AppCompatActivity {
                                     {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
-                                            Toast.makeText(Catalog.this, "Catalog retrieve unsuccessful" + error, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(Catalog.this, "Result return unsuccessful" + error, Toast.LENGTH_SHORT).show();
                                         }
                                     }
                             ) {
@@ -148,16 +164,75 @@ public class Catalog extends AppCompatActivity {
                             .setCancelable(false)
                             .show();
                 }
-                WebSettings webSettings = Catalog.getSettings();
-                webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
             }
         });
 
-        Catalog.setWebViewClient(new WebViewClient());
         if (!searchURL.startsWith("file://")) {
             if (!searchURL.startsWith("javascript://")) {
                 if (!searchURL.startsWith("content://")) {
-                    Catalog.loadUrl(searchURL);
+                    //Catalog.loadUrl(searchURL + item.getText().toString());
+                    StringRequest postRequest = new StringRequest(Request.Method.POST, searchURL,
+                            new Response.Listener<String>()
+                            {
+                                @Override
+                                public void onResponse(String response) {
+                                    // response
+                                    String jsonStr = response;
+                                    try {
+                                        JSONArray objArray = new JSONArray(jsonStr);
+                                        ArrayList<String> itemList = new ArrayList<>();
+                                        for (int i = 0; i < objArray.length(); i++) {
+                                            JSONObject row = objArray.getJSONObject(i);
+                                            itemList.add(row.getString("name"));
+                                        }
+
+                                        ArrayAdapter arrayAdapter = new ArrayAdapter(Catalog.this, android.R.layout.simple_list_item_1, itemList);
+                                        productList.setAdapter(arrayAdapter);
+
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    Toast.makeText(Catalog.this, "Catalog retrieve successful", Toast.LENGTH_SHORT).show();
+
+                                }
+                            },
+                            new Response.ErrorListener()
+                            {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(Catalog.this, "Catalog retrieve unsuccessful" + error, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                    ) {
+                        @Override
+                        public String getBodyContentType() {
+                            return "application/json; charset=utf-8";
+                        }
+
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put("page", String.valueOf(0));
+                            params.put("size", String.valueOf(1));
+
+                            return params;
+                        }
+
+                        @Override
+                        public byte[] getBody() {
+                            try {
+                                //input search condition here
+                                jsonBody.put("searchTerm", "");
+                                final String requestBody = jsonBody.toString();
+                                return requestBody == null ? null : requestBody.getBytes("utf-8");
+                            } catch (UnsupportedEncodingException | JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+
+                    queue.add(postRequest);
+
                 }else{
                     new AlertDialog.Builder(Catalog.this)
                             .setTitle("Illegal Website Access")
@@ -200,9 +275,6 @@ public class Catalog extends AppCompatActivity {
                     .setCancelable(false)
                     .show();
         }
-
-        WebSettings webSettings = Catalog.getSettings();
-        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
     }
 
     @Override

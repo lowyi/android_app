@@ -9,7 +9,7 @@
 
     <EditText
         android:id="@+id/search"
-        android:layout_width="300dp"
+        android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
@@ -36,12 +36,14 @@
         android:layout_alignParentRight="true"
         android:textColor="@color/black" />
 
-    <WebView
-        android:id="@+id/webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
+    <ListView
+        android:id="@+id/productListView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:divider="@color/black"
+        android:dividerHeight="1dp"
+        android:listSelector="#0f0"
         android:layout_below="@id/search"
-        android:layout_alignParentBottom="true"/>
+        />
 
 </RelativeLayout>
