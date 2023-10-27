@@ -1,5 +1,6 @@
 package com.example.clicknship;
 
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
 import static com.example.clicknship.PasswordUtil.encryptStrAndToBase64;
 
 import androidx.appcompat.app.AlertDialog;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -164,6 +166,18 @@ public class Catalog extends AppCompatActivity {
                             .setCancelable(false)
                             .show();
                 }
+            }
+        });
+
+        productList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                                    long id) {
+                //Toast.makeText(Catalog.this, "result" + parent.getAdapter().getItem(position), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Catalog.this, itemDetail.class);
+                String message = parent.getAdapter().getItem(position).toString();
+                intent.putExtra(EXTRA_MESSAGE, message);
+                startActivity(intent);
             }
         });
 
