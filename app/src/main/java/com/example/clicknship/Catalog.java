@@ -174,7 +174,7 @@ public class Catalog extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
                 //Toast.makeText(Catalog.this, "result" + parent.getAdapter().getItem(position), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(Catalog.this, itemDetail.class);
+                Intent intent = new Intent(Catalog.this, itemDescription.class);
                 String message = parent.getAdapter().getItem(position).toString();
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
