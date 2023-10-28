@@ -178,7 +178,7 @@ public class Catalog extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
                 Intent intent = new Intent(Catalog.this, itemDescription.class);
-                String message = parent.getAdapter().getItem(position).toString();
+                //String message = parent.getAdapter().getItem(position).toString();
                 intent.putExtra("position", String.valueOf(position));
                 intent.putExtra("description", itemDescription.get(position).toString());
 

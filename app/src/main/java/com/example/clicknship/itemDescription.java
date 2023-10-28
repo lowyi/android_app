@@ -47,8 +47,6 @@ public class itemDescription extends AppCompatActivity {
         String description = intent.getStringExtra("description");
         int position = Integer.parseInt(itemposition.toString());
 
-        Toast.makeText(itemDescription.this, "result" + position, Toast.LENGTH_SHORT).show();
-
         itemDescription.setText(description.toString());
         itemImage.setImageResource(product[position]);
     }
