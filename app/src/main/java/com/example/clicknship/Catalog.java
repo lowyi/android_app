@@ -49,6 +49,7 @@ public class Catalog extends AppCompatActivity {
         Button searchBtn = findViewById(R.id.searchB);
         TextView item =  findViewById(R.id.search);
         ListView productList = findViewById(R.id.productListView);
+        ArrayList<String> itemDescription = new ArrayList<>();
 
         final String searchURL = "http://192.168.1.71:8770/api/catalogueService/catalogue/catalogue/search?page=0&size=100";
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -69,12 +70,15 @@ public class Catalog extends AppCompatActivity {
                                         public void onResponse(String response) {
                                             // response
                                             String jsonStr = response;
+
                                             try {
                                                 JSONArray objArray = new JSONArray(jsonStr);
                                                 ArrayList<String> itemList = new ArrayList<>();
+                                                itemDescription.clear();
                                                 for (int i = 0; i < objArray.length(); i++) {
                                                     JSONObject row = objArray.getJSONObject(i);
                                                     itemList.add(row.getString("name"));
+                                                    itemDescription.add(row.getString("description"));
                                                 }
 
                                                 ArrayAdapter arrayAdapter = new ArrayAdapter(Catalog.this, android.R.layout.simple_list_item_1, itemList);
@@ -173,10 +177,11 @@ public class Catalog extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
-                //Toast.makeText(Catalog.this, "result" + parent.getAdapter().getItem(position), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(Catalog.this, itemDescription.class);
                 String message = parent.getAdapter().getItem(position).toString();
-                intent.putExtra(EXTRA_MESSAGE, message);
+                intent.putExtra("position", String.valueOf(position));
+                intent.putExtra("description", itemDescription.get(position).toString());
+
                 startActivity(intent);
             }
         });
@@ -195,9 +200,11 @@ public class Catalog extends AppCompatActivity {
                                     try {
                                         JSONArray objArray = new JSONArray(jsonStr);
                                         ArrayList<String> itemList = new ArrayList<>();
+                                        itemDescription.clear();
                                         for (int i = 0; i < objArray.length(); i++) {
                                             JSONObject row = objArray.getJSONObject(i);
                                             itemList.add(row.getString("name"));
+                                            itemDescription.add(row.getString("description"));
                                         }
 
                                         ArrayAdapter arrayAdapter = new ArrayAdapter(Catalog.this, android.R.layout.simple_list_item_1, itemList);
