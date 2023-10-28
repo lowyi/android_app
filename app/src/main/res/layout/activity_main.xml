@@ -84,27 +84,4 @@
         android:text="Login"
         android:textColor="@color/black" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login via others"
-        android:textColor="@color/black"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:id="@+id/others"
-        android:layout_below="@id/loginbtn"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/others"
-        android:gravity="center"
-        android:id="@+id/Social">
-        <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/shop"
-            android:id="@+id/ShopBtn"/>
-    </LinearLayout>
-
 </RelativeLayout>

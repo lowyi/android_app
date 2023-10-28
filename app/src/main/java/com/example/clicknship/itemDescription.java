@@ -1,37 +1,19 @@
 package com.example.clicknship;
 
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.webkit.WebView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class itemDescription extends AppCompatActivity {
 
     private WebView itemDescription;
+    CountDownTimer cTimer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +32,25 @@ public class itemDescription extends AppCompatActivity {
         itemDescription.setText(description.toString());
         itemImage.setImageResource(product[position]);
     }
+
+    public void startTimer( String expired) {
+
+        //cTimer = new CountDownTimer(30000, 1000) {
+
+        int futureTime = Integer.parseInt(expired) * 10;
+
+        cTimer = new CountDownTimer(futureTime, 1000) {
+            public void onTick(long millisUntilFinished) {
+            }
+            public void onFinish() {
+                Toast.makeText(itemDescription.this, "Session have expired, Kindly re-login again.", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(itemDescription.this,MainActivity.class);
+                startActivity(intent);
+            }
+        };
+        cTimer.start();
+    };
 
     @Override
     public void onBackPressed() {

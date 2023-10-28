@@ -1,24 +1,20 @@
 package com.example.clicknship;
 
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
-import static com.example.clicknship.PasswordUtil.encryptStrAndToBase64;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -40,6 +36,7 @@ import java.util.Map;
 public class Catalog extends AppCompatActivity {
 
     private WebView Catalog;
+    CountDownTimer cTimer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +51,9 @@ public class Catalog extends AppCompatActivity {
         final String searchURL = "http://192.168.1.71:8770/api/catalogueService/catalogue/catalogue/search?page=0&size=100";
         RequestQueue queue = Volley.newRequestQueue(this);
         JSONObject jsonBody = new JSONObject();
+
+        Intent intent = getIntent();
+        String expired = intent.getStringExtra("expire");
 
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -296,7 +296,29 @@ public class Catalog extends AppCompatActivity {
                     .setCancelable(false)
                     .show();
         }
+
+        startTimer(expired);
+
     }
+
+    public void startTimer( String expired) {
+
+        //cTimer = new CountDownTimer(30000, 1000) {
+
+        int futureTime = Integer.parseInt(expired) * 10;
+
+        cTimer = new CountDownTimer(futureTime, 1000) {
+            public void onTick(long millisUntilFinished) {
+            }
+            public void onFinish() {
+                Toast.makeText(Catalog.this, "Session have expired, Kindly re-login again.", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(Catalog.this,MainActivity.class);
+                startActivity(intent);
+            }
+        };
+        cTimer.start();
+    };
 
     @Override
     public void onBackPressed() {
@@ -306,4 +328,5 @@ public class Catalog extends AppCompatActivity {
             super.onBackPressed();
         }
     }
+
 }
