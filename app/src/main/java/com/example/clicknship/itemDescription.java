@@ -33,25 +33,6 @@ public class itemDescription extends AppCompatActivity {
         itemImage.setImageResource(product[position]);
     }
 
-    public void startTimer( String expired) {
-
-        //cTimer = new CountDownTimer(30000, 1000) {
-
-        int futureTime = Integer.parseInt(expired) * 10;
-
-        cTimer = new CountDownTimer(futureTime, 1000) {
-            public void onTick(long millisUntilFinished) {
-            }
-            public void onFinish() {
-                Toast.makeText(itemDescription.this, "Session have expired, Kindly re-login again.", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(itemDescription.this,MainActivity.class);
-                startActivity(intent);
-            }
-        };
-        cTimer.start();
-    };
-
     @Override
     public void onBackPressed() {
         if (itemDescription.canGoBack()) {
