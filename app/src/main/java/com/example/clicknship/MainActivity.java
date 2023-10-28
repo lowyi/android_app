@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,6 +28,7 @@ import com.scottyab.rootbeer.RootBeer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -171,13 +173,18 @@ public class MainActivity extends AppCompatActivity {
                         params.put("client_secret", CLIENT_SECRET);
                         params.put("username", username.getText().toString().trim());
                         try {
-                            //params.put("password",  encryptStrAndToBase64("Z28yc2hvcFNlY3JldEtleQ==", Password.getText().toString()));
-                            params.put("password","BoKxn6eLtxE53lh/8Sb4CA==");
+                            byte[] dataP = Password.getText().toString().trim().getBytes("UTF-8");
+                            byte[] dataPK = "go2shopSecretKey".getBytes("UTF-8");
+
+                            params.put("password", encryptStrAndToBase64(dataPK, dataP));
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                         try {
-                            params.put("otp", encryptStrAndToBase64("Z28yc2hvcFNlY3JldEtleQ==", otp.getText().toString()));
+                            byte[] dataOTP = otp.getText().toString().trim().getBytes("UTF-8");
+                            byte[] dataOTPK = "go2shopSecretKey".getBytes("UTF-8");
+
+                            params.put("otp", encryptStrAndToBase64(dataOTPK, dataOTP));
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
