@@ -13,13 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ClickNship"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="false"
         tools:targetApi="31">
         <activity
             android:name=".itemDescription"
-            android:exported="false" />
-        <activity
-            android:name=".textview"
             android:exported="false" />
         <activity
             android:name=".Catalog"
